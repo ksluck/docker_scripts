@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Change this variable to the number of cpu threads on your computer
-max_nmbr_cpus = 96
+max_nmbr_cpus=96
 
 # Change the data_folder variable to reflect the path to the folder your docker
 # container should mount. I do recommend in multiple user settings to use
@@ -134,9 +134,25 @@ then
   mem_assignm=250
 fi
 
+
+echo "======================================================================"
+echo "Do you want to connect to your host xserver?"
+echo "This allows to display GUI elements on your screen"
+echo "This will work on workstations but probably not on headless servers...."
+read -p "[y|n]: " -e -i "n" xserv
+
+if [ $xserv == "y"]
+then
+  XSOCK=/tmp/.X11-unix
+  XAUTH=/tmp/.docker.xauth
+  xauth nlist :0 | sed -e 's/^..../ffff/' | xauth -f $XAUTH nmerge -
+  XDOCKER="-v ${XSOCK}:${XSOCK} -v ${XAUTH}:${XAUTH} -e XAUTHORITY=${XAUTH} -e DISPLAY=$DISPLAY"
+else
+  XDOCKER=""
+fi
 echo "======================================================================"
 echo "The following command will be used to create the docker container"
-echo " docker run $gpu_command $gpu_assignm --cpus $cpu_assignm --cpuset-cpus=$cpu_cores -m ${mem_assignm}GB -i -t --shm-size=2g -v ${data_folder}:${docker_folder} --name $name $image /bin/bash"
+echo " docker run $gpu_command $gpu_assignm --cpus $cpu_assignm --cpuset-cpus=$cpu_cores -m ${mem_assignm}GB -i -t --shm-size=2g -v ${data_folder}:${docker_folder} ${XDOCKER} --name $name $image /bin/bash"
 echo "If you continue, the docker container will be created and started and drop you into the root shell of the container"
 echo "> Use CTRL+P+Q to detach from the container, or the command exit to stop it <"
 echo "You can use the start and stop scripts to start or stop the container"
@@ -150,4 +166,4 @@ then
   exit 1
 fi
 
-docker run $gpu_command $gpu_assignm --cpus $cpu_assignm --cpuset-cpus=$cpu_cores -m ${mem_assignm}GB -i -t --shm-size=2g -v ${data_folder}:${docker_folder} --name $name $image /bin/bash
+docker run $gpu_command $gpu_assignm --cpus $cpu_assignm --cpuset-cpus=$cpu_cores -m ${mem_assignm}GB -i -t --shm-size=2g -v ${data_folder}:${docker_folder} ${XDOCKER} --name $name $image /bin/bash
