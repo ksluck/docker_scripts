@@ -141,7 +141,7 @@ echo "This allows to display GUI elements on your screen"
 echo "This will work on workstations but probably not on headless servers...."
 read -p "[y|n]: " -e -i "n" xserv
 
-if [ $xserv == "y"]
+if [ $xserv == "y" ]
 then
   XSOCK=/tmp/.X11-unix
   XAUTH=/tmp/.docker.xauth
