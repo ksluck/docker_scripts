@@ -21,6 +21,9 @@ in the create_docker file for adaptations you have to make for your system - mos
 GPUs and folders you have on your system.
 
 Feel free to open isues if you have any questions and if you improve the scripts feel free to send me a push request!
+I will over time improve these scripts and extend them, but any help is appreciated.
+
+Make sure to have a look at the `create_docker.sh` script - you can adapt it and set some of the variables to adapt the script to your own system.
 
 
 ## Content
@@ -158,6 +161,18 @@ Memory Assignment: How much memory (in GB) do you need? (32GB recommended, 250 m
 Assign how much memory your container should have access to. Memory is shared between all containers, but this is a useful feature to prevent your container starving host processes or other containers from
 memory. The initial value here is 32 GB, which should be sufficient for most programs.
 If you need more, consider that this restricts the number of containers you can run at the same time. To protect the host system, the maxium value is 250 GB.
+
+```
+======================================================================
+Do you want to connect to your host xserver?
+This allows to display GUI elements on your screen
+This will work on workstations but probably not on headless servers....
+[y|n]: n
+```
+Here you have the option to activate the option forward graphical output of your programs to your host xserver.
+This can be useful if you want to use simulators and display their visuals.
+Probably, you want to use this option only on your workstation and not on a (headless) server...
+
 
 ```
 ======================================================================
