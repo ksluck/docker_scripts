@@ -375,6 +375,7 @@ Just execute the following commands in your docker container to make the accessi
 chgrp -R 999 /srv/data
 chmod -R g+rw /srv/data
 ```
+Important: The group number 999 is here the id of the docker group. You can find this number in `/etc/group` on your system.
 These commands define the `docker` group on the host system as owner of these files and
 change the group privileges to read and write.
 
