@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Change this variable to the number of cpu threads on your computer
-max_nmbr_cpus=96
+max_nmbr_cpus=$(nproc --all)
 
 # Change the data_folder variable to reflect the path to the folder your docker
 # container should mount. I do recommend in multiple user settings to use
@@ -82,8 +82,8 @@ fi
 
 echo "======================================================================"
 echo "CPU Assignment: How many CPUs do you need? (20 are recommended, 96 max)"
-echo " Enter [10|1|2|...|96]"
-read -e -i 20 cpu_assignm
+echo " Enter [10|1|2|...|${max_nmbr_cpus}]"
+read -e -i $max_nmbr_cpus cpu_assignm
 
 # Here you might want to change the maximum possible number if your
 # server has more than 96 cores
@@ -110,7 +110,7 @@ read -e -i "auto" cpu_cores_selection
 
 if [ $cpu_cores_selection == "auto" ]
 then
-  cpu_cores="0-${max_nmbr_cpus}"
+	cpu_cores="0-${((max_nmbr_cpus - 1))}"
 elif [ $cpu_cores_selection == "gpu01" ]
 then
   cpu_cores="0-23,48-71"
@@ -146,7 +146,7 @@ then
   XSOCK=/tmp/.X11-unix
   XAUTH=/tmp/.docker.xauth
   xauth nlist :0 | sed -e 's/^..../ffff/' | xauth -f $XAUTH nmerge -
-  XDOCKER="-v ${XSOCK}:${XSOCK} -v ${XAUTH}:${XAUTH} -e XAUTHORITY=${XAUTH} -e DISPLAY=$DISPLAY"
+  XDOCKER="-v ${XSOCK}:${XSOCK} -v ${XAUTH}:${XAUTH} -e XAUTHORITY=${XAUTH} -e DISPLAY=$DISPLAY --env='NVIDIA_DRIVER_CAPABILITIES=all'"
 else
   XDOCKER=""
 fi
@@ -165,5 +165,5 @@ if [ $cont != "y" ]
 then
   exit 1
 fi
-
-docker run $gpu_command $gpu_assignm --cpus $cpu_assignm --cpuset-cpus=$cpu_cores -m ${mem_assignm}GB -i -t --shm-size=2g -v ${data_folder}:${docker_folder} ${XDOCKER} --name $name $image /bin/bash
+ndc="NVIDIA_DRIVER_CAPABILITIES=compute,utility,video,display"
+docker run $gpu_command $gpu_assignm --cpus $cpu_assignm --cpuset-cpus=$cpu_cores -m ${mem_assignm}GB -i -t --shm-size=2g -v ${data_folder}:${docker_folder} ${XDOCKER} --env=${ndc} --name $name $image /bin/bash
