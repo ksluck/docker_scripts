@@ -158,8 +158,10 @@ read -p "[y|n]: " -e -i "n" port_forwarding
 
 if [ $port_forwarding == "y" ]
 then
-  read -p "What is the source port?" -e -i "8888" PORTS
-  read -p "What is the destination port?" -e -i "8888" PORTG
+  echo "What is the source port? (Docker Container)"
+  read -e -i "8888" PORTS
+  echo "What is the destination port? (Host System)"
+  read -e -i "8888" PORTG
   PORTF="-p ${PORTS}:${PORTG}"
 else
   PORTF=""
