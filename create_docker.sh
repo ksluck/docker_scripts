@@ -150,9 +150,25 @@ then
 else
   XDOCKER=""
 fi
+
+echo "======================================================================"
+echo "Do you want to forward a port from your docker container to your host system?"
+echo "This can be used for jupyter notebooks"
+read -p "[y|n]: " -e -i "n" port_forwarding
+
+if [ $port_forwarding == "y" ]
+then
+  read -p "What is the source port?" -e -i "8888" PORTS
+  read -p "What is the destination port?" -e -i "8888" PORTG
+  PORTF="-p ${PORTS}:${PORTG}"
+else
+  PORTF=""
+fi
+
+
 echo "======================================================================"
 echo "The following command will be used to create the docker container"
-echo " docker run $gpu_command $gpu_assignm --cpus $cpu_assignm --cpuset-cpus=$cpu_cores -m ${mem_assignm}GB -i -t --shm-size=2g -v ${data_folder}:${docker_folder} ${XDOCKER} --name $name $image /bin/bash"
+echo " docker run $gpu_command $gpu_assignm --cpus $cpu_assignm --cpuset-cpus=$cpu_cores -m ${mem_assignm}GB -i -t --shm-size=2g ${PORTF} -v ${data_folder}:${docker_folder} ${XDOCKER} --name $name $image /bin/bash"
 echo "If you continue, the docker container will be created and started and drop you into the root shell of the container"
 echo "> Use CTRL+P+Q to detach from the container, or the command exit to stop it <"
 echo "You can use the start and stop scripts to start or stop the container"
@@ -166,4 +182,4 @@ then
   exit 1
 fi
 ndc="NVIDIA_DRIVER_CAPABILITIES=compute,utility,video,display"
-docker run $gpu_command $gpu_assignm --cpus $cpu_assignm --cpuset-cpus=$cpu_cores -m ${mem_assignm}GB -i -t --shm-size=2g -v ${data_folder}:${docker_folder} ${XDOCKER} --env=${ndc} --name $name $image /bin/bash
+docker run $gpu_command $gpu_assignm --cpus $cpu_assignm --cpuset-cpus=$cpu_cores -m ${mem_assignm}GB -i -t --shm-size=2g ${PORTF} -v ${data_folder}:${docker_folder} ${XDOCKER} --env=${ndc} --name $name $image /bin/bash
