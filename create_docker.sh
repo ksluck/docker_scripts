@@ -12,8 +12,10 @@ max_nmbr_cpus=$(nproc --all)
 # The script only mounts one folder but you can easily extend it to mount
 # other folders as well.
 
-data_folder="/srv/data/${USER}"
-docker_folder="/srv/data/${USER}"
+# data_folder="/srv/data/${USER}"
+# docker_folder="/srv/data/${USER}"
+data_folder="/home/${USER}/docker_data"
+docker_folder="/root/docker_data"
 
 echo "Enter the name for the new docker container."
 echo "This will be the name you use for starting, stopping, etc and deleting the container later on."
@@ -37,7 +39,7 @@ read -e -i "pytorch" image
 if [[ "$image" = "pytorch" ]]
 then
   repository="nvcr.io/nvidia/pytorch"
-  tag="20.08-py3"
+  tag="24.01-py3"
 elif [[ "$image" = "tensorflow" ]]
 then
   repository="nvcr.io/nvidia/tensorflow"
@@ -55,7 +57,7 @@ then
   echo "Enter a repository (I will give you an example here from https://ngc.nvidia.com/catalog/containers/nvidia:pytorch "
   read -e -i "nvcr.io/nvidia/pytorch" repository
   echo "Enter a tag"
-  read -e -i "20.09-py3" tag
+  read -e -i "24.01-py3" tag
 else
   echo "Image name not known"
   exit 1
@@ -66,7 +68,7 @@ image="${repository}:${tag}"
 echo "======================================================================"
 echo "GPU Assignment: Which GPU do you want to assign to the container?"
 echo " Enter [none|all|0|1|2|3|0,1|0,1,2|1,2,3|1,2|...]"
-read -e -i "none" gpu_assignm
+read -e -i "all" gpu_assignm
 
 if [[ "$gpu_assignm" == "none" ]]
 then
@@ -81,7 +83,7 @@ else
 fi
 
 echo "======================================================================"
-echo "CPU Assignment: How many CPUs do you need? (20 are recommended, 96 max)"
+echo "CPU Assignment: How many CPUs do you need? (20 are recommended, ${max_nmbr_cpus} max)"
 echo " Enter [10|1|2|...|${max_nmbr_cpus}]"
 read -e -i $max_nmbr_cpus cpu_assignm
 
@@ -93,33 +95,35 @@ then
   cpu_assignm=$max_nmbr_cpus
 fi
 
-echo "======================================================================"
-echo "Do you want to run the docker on specific CPUs?"
-echo " Enter one of the following:"
-echo " auto : Let the host system do its thing"
-echo " gpu01 : Select CPUs with a direct connection to GPU 0 and GPU 1"
-echo " gpu23 : Select CPUs with a direct connection to GPU 2 and GPU 3"
-echo " [0|1|2|0-10|5-20|0,5,10|0-10,15-20|...] : Select CPU threads yourself"
-read -e -i "auto" cpu_cores_selection
+# echo "======================================================================"
+# echo "Do you want to run the docker on specific CPUs?"
+# echo " Enter one of the following:"
+# echo " auto : Let the host system do its thing"
+# echo " gpu01 : Select CPUs with a direct connection to GPU 0 and GPU 1"
+# echo " gpu23 : Select CPUs with a direct connection to GPU 2 and GPU 3"
+# echo " [0|1|2|0-10|5-20|0,5,10|0-10,15-20|...] : Select CPU threads yourself"
+# read -e -i "auto" cpu_cores_selection
 
-# As you might know, if you have more than one CPU core than the transfer
-# between certain GPUs and CPUs might be faster
-# This section provides a possibility to restrict the docker containers to
-# specific GPUs if you know this.
-# You might want to adapt the section below
+# # As you might know, if you have more than one CPU core than the transfer
+# # between certain GPUs and CPUs might be faster
+# # This section provides a possibility to restrict the docker containers to
+# # specific GPUs if you know this.
+# # You might want to adapt the section below
 
-if [ $cpu_cores_selection == "auto" ]
-then
-	cpu_cores="0-${((max_nmbr_cpus - 1))}"
-elif [ $cpu_cores_selection == "gpu01" ]
-then
-  cpu_cores="0-23,48-71"
-elif [ $cpu_cores_selection == "gpu23" ]
-then
-  cpu_cores="24-47,72-95"
-else
-  cpu_cores=cpu_cores_selection
-fi
+cpu_cores="0-${((max_nmbr_cpus - 1))}"
+
+# if [ $cpu_cores_selection == "auto" ]
+# then
+# 	cpu_cores="0-${((max_nmbr_cpus - 1))}"
+# elif [ $cpu_cores_selection == "gpu01" ]
+# then
+#   cpu_cores="0-23,48-71"
+# elif [ $cpu_cores_selection == "gpu23" ]
+# then
+#   cpu_cores="24-47,72-95"
+# else
+#   cpu_cores=cpu_cores_selection
+# fi
 
 echo "======================================================================"
 echo "Memory Assignment: How much memory (in GB) do you need? (32GB recommended, 250 max)"
