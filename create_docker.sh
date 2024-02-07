@@ -15,7 +15,7 @@ max_nmbr_cpus=$(nproc --all)
 # data_folder="/srv/data/${USER}"
 # docker_folder="/srv/data/${USER}"
 data_folder="/home/${USER}/docker_data"
-docker_folder="/root/docker_data"
+docker_folder="/workspace/docker_data"
 
 echo "Enter the name for the new docker container."
 echo "This will be the name you use for starting, stopping, etc and deleting the container later on."
